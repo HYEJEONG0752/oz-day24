@@ -163,6 +163,68 @@ const promise = new Promise((resolve, reject) => {
 promise.then((result) => {
     console.log(result);    // Success
 });
-//`promise`객체가 생성되고, 1초 뒤에 `resolve`가 호추되어 상태가 변경, `then`메서드에 등록된 콜백 함수 실행되어 `success`가 출력
+//`promise`객체가 생성되고, 1초 뒤에 `resolve`가 호출되어 상태가 변경, `then`메서드에 등록된 콜백 함수 실행되어 `success`가 출력
 
-// 15. 
+// 15. async/await를 이용한 비동기 함수 제어
+async function fetchData() {    // `fetchData()`함수가 async로 정의 되어 있기 땜누에 호출 시, `Promise`반환
+    const data = await new Promise((resolve) => {   // `new Promise`실행 -> `Promise`객체 생성, 콜백 함수 실행
+        setTimeout(() => {      
+            resolve('Fetched Data');    // `fetchData`함수는 `await`키워드로 인해 `Promise`가 이행될 때까지 대기 상태
+        }, 1000);       // 1초 뒤 예약된 콜백함수가 실행되고 `resolve('Fetches Data')`호출 -> Promise: 이행상태 -> `await`는 'Fetched Data'반환 
+    });
+
+    console.log(data);  // Fetched Data
+}
+
+fetchData();    
+// `fetchData`함수 호출 -> 내부에서 `Promise`생성: 1초뒤에 이행 -> 이행된 값 `data`변수에 할당되고 출력
+
+// 16. 호이스팅이 발생하는 경우
+console.log(a);
+
+var a = 10; // undefined
+/* JavaScript에서는 변수 선언(`var`, `let`, `const`)이 해당 스코프의 최상단으로 끌어 올려지는 현상: 호이스팅 현상이 발생하지만 변수의 초기화는 호이스팅 되지않음.
+    위의 경우, `var a;`가 코드의 최상단으로 끌어올려지지만 `a`에 10을 할당하는 부분은 원래 위치에 남아 있기 때문에 변수 `a`가 선언되었지만 초기화되지 않아서 `undefined`출력*/
+
+// 17. let과 const에서의 호이스팅 차이
+console.log(b);
+
+let b = 10;
+// 호이스팅이 발생하지만 선언하기 전에는 접근할 수 없고, 선언된 위치 이전에 접근하려고 하면 해당 변수가 초기화 되지 않았기 때문에 `ReferenceError`발생
+
+// 18. 생성자 함수에서 this의 역할
+function Car(model) {
+    this.model = model;
+}
+
+const myCar = new Car('Tesla');
+
+console.log(myCar.model);   // `Tesla`
+// 생성자 함수에서 this는 새로 생성되는 객체 즉, `new`키워드를 사용하여 호출된 객체를 참조
+
+// 19. 이벤트 루프릐 동작 원리
+console.log('Start');   // 1. 호출 -> 실행 -> 'Start'출력
+
+setTimeout(() => {  // 2. 호출 -> 이벤트 큐에 추가 -> 대기: 메인 스레드가 실행 중이므로 즉시실행 되지 않음
+    console.log('Timeout'); // 4. 콜백 실행 -> 'Timeout'출력
+},0);
+
+console.log('End'); // 3. 호출 -> 실행 -> 'End'출력 -> 이벤트 루프 큐 확인
+// 출력 순서: Start -> End -> Timeout
+
+// 20. 프로미스 체인의 동작 이해
+new Promise((resolve, reject) => {  // 1. 1초후 `resolve('First Promise')`를 호출 -> 성공 상태 전환
+    setTimeout(() => {
+        resolve('First Promise');
+    }, 1000);
+})
+    .then((result) => {     // 2. 블록 실행 
+        console.log(result);    // 3. 'First Promise'출력
+        return 'Second Promise';    // 4. 'Second Promise' 반환
+    })
+    .then((result) => {     // 5. 첫번째 .then에서 반환된 값 인자로 전달 받음
+        console.log(result);    // 6. 'Second Promise' 출력
+    });
+
+// 프로미스 체인은 비동기 작업을 순차적으로 처리할 수 있게 해주고, 각 프로미스는 `then`메서드를 통해 다음 작업을 정의 할수 있음.
+// 각 `then`블록은 이전 프로미스의 결과를 받아서 처리함. 
